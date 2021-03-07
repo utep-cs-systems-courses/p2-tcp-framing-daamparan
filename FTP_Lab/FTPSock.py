@@ -11,6 +11,7 @@ Here we will simply define the send and recv of our
 protocol
 '''
 import re, os, sys
+import socket
 
 def readLine(): #reads line \ functions like input
     return os.read(0,1024).decode()
@@ -46,4 +47,12 @@ def ftp_recv(sock):
     fCont = '' #buffer for receiver
     while '.' not in fCont:
         fCont = fCont + sock.recv(1024) #attain entire message
-    
+    return fCont.decode()
+
+def ftp_handleIn(fCont): #handle the content, identify what it is
+    if 'Hello' in fCont: #initial connection greeting
+        myPrint(fCont)
+    else: #filename with contents
+        fileName = fCont.split('\n')[0] #file we want to write
+        #pass the fileName | split string to get contents by taking last letter of fileName +2 to account for new line char
+        myWrite(fileName, fCont[fCont.index(fileName[-1])+2:])

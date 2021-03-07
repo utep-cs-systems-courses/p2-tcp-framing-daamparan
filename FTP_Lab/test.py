@@ -22,8 +22,9 @@ def myWrite(fileName, wBuf):
 #r = readLine()
 #myOpen(t[:t.index('\n')])
 #myWrite(r[:r.index('\n')], 'My new string file')
-msg = 'The enter\nThe end\nSee it at the end\n'
-print(msg.split('\n'))
+t = readLine()
+myPrint(t)
+os.open('test.txt', os.O_RDWR)
 
 
 '''
