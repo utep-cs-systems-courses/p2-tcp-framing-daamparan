@@ -13,12 +13,19 @@ def myOpen(fileName):
     myPrint((os.read(fd_in,1024)).decode())
     os.close(fd_in)
 
-def myWrite(filename):
+def myWrite(fileName, wBuf):
     fd_out = os.open(fileName, os.O_WRONLY | os.O_CREAT)
+    os.write(fd_out, wBuf.encode())
+    os.close(fd_out)
 
-t = readLine()
+#t = readLine()
+#r = readLine()
+#myOpen(t[:t.index('\n')])
+#myWrite(r[:r.index('\n')], 'My new string file')
+msg = 'The enter\nThe end\nSee it at the end\n'
+print(msg.split('\n'))
 
-myOpen(t[:t.index('\n')])
+
 '''
 while '\n' in t:
     myPrint(t[:t.index('\n')])
