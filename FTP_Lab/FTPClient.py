@@ -44,6 +44,10 @@ if s is None: #in case socket could not be made
 
 try: #establish connection
     s.connect(addrPort)
+    rcMsg = ftp_recv(s) #receive welcome message
+    if 'hello' in rcMsg.lower(): #hello message
+        myPrint(rsMsg)
+
     fCopy = readLine() #file to copy
     fNewName = readLine() #new name for the file
     myPrint('Sending file Contents')

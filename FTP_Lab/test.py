@@ -22,9 +22,10 @@ def myWrite(fileName, wBuf):
 #r = readLine()
 #myOpen(t[:t.index('\n')])
 #myWrite(r[:r.index('\n')], 'My new string file')
-t = readLine()
-myPrint(t)
-os.open('test.txt', os.O_RDWR)
+t = 12
+bindAddr = ("127.0.0.1", 50001)
+myPrint('The end ' + str(bindAddr))
+
 
 
 '''
