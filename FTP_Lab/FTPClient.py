@@ -42,18 +42,22 @@ if s is None: #in case socket could not be made
     myPrint('Could not open socket')
     sys.exit(1)
 
-try: #establish connection
-    s.connect(addrPort)
-    rcMsg = ftp_recv(s) #receive welcome message
-    if 'hello' in rcMsg.lower(): #hello message
-        myPrint(rsMsg)
+s.connect(addrPort)
+while 1:
+    try: #establish connection
+        rcMsg = s.recv(1024)#receive welcome message
+        if 'Hello' in rcMsg.decode(): #
+            myPrint(rcMsg.decode() + '\n')
 
-    fCopy = readLine() #file to copy
-    fNewName = readLine() #new name for the file
-    myPrint('Sending file Contents')
+        myPrint('Enter the file that you want to send')
+        fCopy = readLine() #file to copy
+        myPrint('\nEnter the new file name or file name to be overwritten')
+        fNewName = readLine() #new name for the file
+        myPrint('\nSending file Contents')
 
-    ftp_send(s, fNewName, fCopy) #pass the socket, file to copy, and new name for file to be copied
-
-except:
-        myPrint('Could not connect to the server')
+        ftp_send(s, fNewName[:fNewName.index('\n')], fCopy[:fCopy.index('\n')]) #pass the socket, file to copy, and new name for file to be copied
+    except:
+        myPrint('Could not communicate')
         sys.exit(1)
+
+#s.close() #close the socket

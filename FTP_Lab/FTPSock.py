@@ -11,7 +11,6 @@ Here we will simply define the send and recv of our
 protocol
 '''
 import re, os, sys
-import socket
 
 def readLine(): #reads line \ functions like input
     return os.read(0,1024).decode()
@@ -36,17 +35,28 @@ def myWrite(fileName, wBuf): #custom write to file method
 
 def ftp_send(sock, outFile, inFile): #socket gives us all the necessary information
     fCont = myOpen(inFile)
-    sock.send((outFile + '\n').encode()) #first send the file name you would like
+    fCont = (outFile + 'NAME' + '\n') + fCont
+    sock.send(fCont)
+    '''
     while '\n' in fCont: #iterate thourgh every line
         msg = fCont[:fCont.index('\n')]
-        fCont = fCont[fCont.index('\n')]
         sock.send((msg + '\n').encode()) #send an endline terminator
-    sock.send('.') #terminator
+        fCont = fCont[fCont.index('\n')]
+    sock.send(('.').encode()) #terminator
+    '''
+
+def ftp_send_Hello(sock): #intial send of the socket | Greeting to the Client
+    sock.send(('Hello World').encode()) #send greet
+    sock.send('.'.encode())
 
 def ftp_recv(sock):
     fCont = '' #buffer for receiver
-    while '.' not in fCont:
-        fCont = fCont + sock.recv(1024) #attain entire message
+    t = ''
+    while 1:
+        t = sock.recv(1024)
+        if '.' in t:
+            break
+        fCont = fCont + t #attain entire message
     return fCont.decode()
 
 def ftp_handleIn(fCont): #handle the content, identify what it is
