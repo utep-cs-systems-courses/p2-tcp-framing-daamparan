@@ -20,16 +20,41 @@ class threadSock:
         self.rbuf - b"" #replaces global read buffer
 
      #further methods
+    def readLine(): #reads line \ functions like input
+        return os.read(0,1024).decode()
+
+    def myPrint(self, string): #takes the string and prints onto string
+        os.write(1, (string + '\n').encode())
+
+
+    def myOpen(self, fileName): #open our files to be able to read them
+        try:
+            fd_in = os.open(fileName, os.O_RDONLY) #open and read the file
+            self.rbuf = os.read(fd_in,1024)
+            if len(self.rbuf) == 0:
+                myPrint('File is empty')
+                pass
+        os.close(fd_in)#close the file
+
+        except FileNotFoundError:
+            myPrint('File was not found')
+            sys.exit(1)
+
+    def myWrite(self, fileName): #custom write to file method
+        fd_out = os.open(fileName, os.O_WRONLY | os.O_CREAT) #output file descriptor | open if existing / create if not
+        os.write(fd_out, self.rbuf) #writing to the file
+        os.close(fd_out)
+
+
     def close(self):
         return self.sock.close()
 
     def send(self, fileName, payload):
         msg = str(len(payload)).encode() + b':' + fileName.encode() + b':' + payload #seperate things by total chars in the message
         while len(msg): #as we iterate thorugh the entire message
-            sent = sock.send(msg) #attain the number of bytes transfered
+            sent = self.sock.send(msg) #attain the number of bytes transfered
             msg = msg[sent:] #split the rest of the message by those setn already
 
-        receivebuf = b'' #global rbuf
 
     def receive(self):
         state = 1
@@ -39,10 +64,16 @@ class threadSock:
             if state == 1:
                 msg = re.match(b'([^:]+):(.*):(.*)', self.rbuf , re.DOTALL | re.MULTILINE) #looks for the colon in the message
                 if msg:
-                    length, fileName, rbuf = msg.groups() #seperate items by :
+                    length, fileName, self.rbuf = msg.groups() #seperate items by :
                     try:
                         msgLength = int(length) #type cast the string\
                     except:
-                        if len(rbuf):
-                            #add my print method here
-                            return None, None
+                        if len(self.rbuf):
+                            self.myPrint('ERROR: Message length incorrect')
+                            return None
+                    state = 2
+            if state == 2:
+                if len(self.rbuf >= msgLength):
+                    payload = self.rbuf[:msgLength]
+                    self.rbuf = self.rbuf[msgLength:]
+                    return fileName, payload
