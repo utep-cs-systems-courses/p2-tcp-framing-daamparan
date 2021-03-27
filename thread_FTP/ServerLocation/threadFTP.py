@@ -13,14 +13,18 @@ Furthermore, many of the methods found here are copied and pasted from the other
 which can be found in the other folders
 '''
 import re, os, sys
+import socket
+
+def myPrint(string): #takes the string and prints onto string
+    os.write(1, (string + '\n').encode())
 
 class threadSock:
     def __init__(self, sockAddr):
         self.sock, self.addr = sockAddr #attain the socket information
-        self.rbuf = b"" #replaces global read buffer
+        self.rbuf = b"" #replaces global read buffer | replace handling binary files
 
      #further methods
-    def readLine(self): #reads line \ functions like input
+    def readLine(): #reads line \ functions like input
         return os.read(0,1024).decode()
 
     def myOpen(self, fileName): #open our files to be able to read them
@@ -36,9 +40,9 @@ class threadSock:
             myPrint('File was not found')
             sys.exit(1)
 
-    def myWrite(self, fileName): #custom write to file method
+    def myWrite(self, fileName, payload): #custom write to file method
         fd_out = os.open(fileName, os.O_WRONLY | os.O_CREAT) #output file descriptor | open if existing / create if not
-        os.write(fd_out, self.rbuf) #writing to the file
+        os.write(fd_out, payload) #writing to the file
         os.close(fd_out)
 
     def close(self):
@@ -49,6 +53,7 @@ class threadSock:
         while len(msg): #as we iterate thorugh the entire message
             sent = self.sock.send(msg) #attain the number of bytes transfered
             msg = msg[sent:] #split the rest of the message by those setn already
+
 
     def receive(self):
         state = 1
@@ -63,18 +68,15 @@ class threadSock:
                         msgLength = int(length) #type cast the string\
                     except:
                         if len(self.rbuf):
-                            self.myPrint('ERROR: Message length incorrect')
-                            return None
+                            myPrint('ERROR: Message length incorrect')
+                            return None, None
+
                     state = 2
             if state == 2:
                 if len(self.rbuf >= msgLength): #if we have completed the message
-                    payload = self.rbuf[:msgLength]
+                    payload = self.rbuf[0:msgLength]
                     self.rbuf = self.rbuf[msgLength:]
                     return fileName, payload
+
             rec = self.sock.recv(1024) #receive
             self.rbuf = self.rbuf + rec
-
-            if len(rec) == 0: #incase nothing is received
-                if len(self.rbuf) != 0: #the lengts do not match
-                    myPrint('Error: Message is incomplete')
-                return None
