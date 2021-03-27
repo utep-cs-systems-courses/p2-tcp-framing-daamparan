@@ -73,7 +73,14 @@ class threadSock:
                             return None
                     state = 2
             if state == 2:
-                if len(self.rbuf >= msgLength):
+                if len(self.rbuf >= msgLength): #if we have completed the message
                     payload = self.rbuf[:msgLength]
                     self.rbuf = self.rbuf[msgLength:]
                     return fileName, payload
+            rec = self.sock.recv(1024) #receive
+            self.rbuf = self.rbuf + rec
+
+            if len(rec) == 0: #incase nothing is received
+                if len(self.rbuf) != 0: #the lengts do not match
+                    myPrint('Error: Message is incomplete')
+                return None
